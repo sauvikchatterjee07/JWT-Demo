@@ -4,15 +4,15 @@ const User = require("./models/User.model.js");
 const db = require("./db.js");
 const app = express();
 const port = 8000;
-const privateKey = "s3cr3tk3y";
+const privateKey = process.env.privateKey;
 
 const jwt = require("jsonwebtoken");
+
+app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
-
-app.use(bodyParser.json());
 
 app.post("/register", async (req, res) => {
     try {
@@ -51,8 +51,6 @@ app.get("/users", (req, res) => {
     try {
         const token = req.headers.authorization;
 
-        console.log(token);
-
         if (!token) res.json({ message: "token is missing" });
 
         jwt.verify(token, privateKey, async (err, decoded) => {
@@ -63,17 +61,6 @@ app.get("/users", (req, res) => {
                 res.status(200).json(data);
             }
         });
-
-        // // Token is valid, proceed with fetching users
-        // User.find({}, (err, data) => {
-        //     if (err) {
-        //         console.log(err);
-        //         res.status(500).json({ error: "Internal Server Error" });
-        //     } else {
-        //         console.log("All users sent as JSON");
-        //         res.status(200).json(data);
-        //     }
-        // });
     } catch (err) {
         console.log(err);
         res.status(501).json({
@@ -87,8 +74,3 @@ app.listen(port, () => {
 });
 
 //fetch vs axios, Zod
-
-fetch("https://fakerapi.it/api/v1/addresses?_quantity=1")
-    .then((response) => response.json())
-    .then((data) => console.log(data))
-    .catch((err) => console.log(err));
